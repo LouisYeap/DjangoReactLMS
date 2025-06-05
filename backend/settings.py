@@ -131,6 +131,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# 用于userauths中的Prifiles模型关联 避免循环引用
 AUTH_USER_MODEL= 'userauths.User'
 
 # Default primary key field type
