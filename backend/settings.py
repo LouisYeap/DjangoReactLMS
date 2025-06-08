@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,10 +44,18 @@ INSTALLED_APPS = [
     'core',
     'userauths',
     'api',
-]
 
+    # Third-party Apps
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+    ## Enable CORS (Cross-Origin Requests) e.g., from React frontend
+    'corsheaders',
+    ]   
+
+    # django-cors-headers middleware, which handles Cross-Origin Resource Sharing (CORS) for your Django application.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -189,3 +198,78 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
+
+
+# Configuration for the 'djangorestframework-simplejwt' package
+SIMPLE_JWT = {
+    # Access token will be valid for 15 minutes from issue time
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    
+    # Refresh token will be valid for 50 days from issue time
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=50),
+    
+    # When a refresh token is used to obtain a new access token, a new refresh token is also issued
+    'ROTATE_REFRESH_TOKENS': True,
+    
+    # Expired refresh tokens are blacklisted after being rotated
+    'BLACKLIST_AFTER_ROTATION': True,
+    
+    # Do not update the user's last_login field when authenticating via JWT
+    'UPDATE_LAST_LOGIN': False,
+
+    # Algorithm used to sign the token (HMAC using SHA-256)
+    'ALGORITHM': 'HS256',
+
+    # No public key verification needed since symmetric encryption is used
+    'VERIFYING_KEY': None,
+    
+    # Optional: intended audience for the token (not set here)
+    'AUDIENCE': None,
+    
+    # Optional: entity that issued the token (not set here)
+    'ISSUER': None,
+    
+    # Optional: URL where JSON Web Key (JWK) can be found (not set here)
+    'JWK_URL': None,
+    
+    # Tolerance time in seconds to account for clock skew between systems
+    'LEEWAY': 0,
+
+    # Expected type of Authorization header (Bearer tokens)
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    
+    # Name of the HTTP header used to carry the token
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    
+    # Field name on the User model which serves as the user identifier
+    'USER_ID_FIELD': 'id',
+    
+    # Claim name in the token that contains the user identifier
+    'USER_ID_CLAIM': 'user_id',
+    
+    # Rule function to determine if a user should be authenticated based on the token
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    # Type of token class used for authentication
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    
+    # Claim name indicating the type of token (e.g., "access" or "refresh")
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    
+    # Class used to represent users derived from tokens
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+
+    # Claim name for the unique identifier of the token (JWT ID)
+    'JTI_CLAIM': 'jti',
+
+    # Claim name indicating the extended expiration time for sliding tokens
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    
+    # Sliding tokens expire after 5 minutes unless refreshed
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    
+    # Maximum lifetime for sliding token refresh window (1 day)
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
