@@ -33,8 +33,9 @@ class User(AbstractUser):
     )
 
     otp = models.CharField(
-        unique=True,  # 一次性密码必须唯一
-        max_length=100  # 最大长度100字符
+        max_length=100,  # 最大长度100字符
+        null=True, 
+        blank=True,
     )
 
     """
