@@ -7,12 +7,27 @@ from django.contrib.auth.models import AbstractUser
 """
 post_save 是 Django 提供的一个信号机制，用于在模型保存之后执行某些逻辑，常用于自动创建关联对象（如 Profile)、发送通知、记录日志等场景。无论是新建还是更新，只要是通过 Django ORM 的保存机制完成的保存操作，都会触发。
 我认为就像是一个监听器
+
+models.Model vs AbstractUser 的区别
+特性	models.Model	AbstractUser
+作用	是所有模型类的基础类，用于定义普通数据库表。	是Django内置用户模型的抽象父类，用于自定义用户系统。
+是否包含字段	不包含任何业务字段（你自己加什么字段它就有什么）。	已经包含了用户名、密码、邮箱、权限等字段。
+用途	用来创建普通的数据模型（如 Article、Book、Comment 等）。	用来创建自定义用户模型（User），替代默认的用户系统。
+是否可以登录	❌ 不能	✅ 可以（继承了认证相关功能）
+继承后是否要特别设置	❌ 不需要特殊配置，直接 admin.site.register() 就能用。	✅ 需要在 settings.py 中设置 AUTH_USER_MODEL = 'app.ModelName'
+
 """
 
 class User(AbstractUser):
     
     """
     自定义用户模型，继承自 Django 的 AbstractUser
+    如果你用了 AbstractUser 来创建自己的用户类，还需要在 settings.py 添加这行：
+    AUTH_USER_MODEL = 'yourapp.User'
+
+    如果你是做“普通数据表”，就继承 models.Model。
+    如果你要自定义登录用户模型（改字段、加手机号、扩展权限等），就继承 AbstractUser 或 AbstractBaseUser。
+
     
     Fields:
         username: 用户名(唯一)最大长度100
@@ -66,9 +81,9 @@ class User(AbstractUser):
         3. 如果用户名为空，则使用电子邮件的用户名部分
         """
         email_username, full_name = self.email.split("@")
-        if self.full_name == "" or self.full_name == None:
+        if self.full_name == "" or self.full_name is None:
             self.full_name = email_username
-        if self.username == "" or self.username == None:
+        if self.username == "" or self.username is None:
             self.username = email_username
         # 调用 Django 的 AbstractUser 类中的 save() 方法，找到 User 类的父类”（也就是 AbstractUser）并将原始传入的参数原样传递过去。
         super().save(*args, **kwargs)
